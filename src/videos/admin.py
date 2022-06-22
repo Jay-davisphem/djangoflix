@@ -4,10 +4,10 @@ from .models import VideoAllProxy, VideoPublishedProxy
 
 
 class VideoAllProxyAdmin(admin.ModelAdmin):
-    list_display = ["title", "id", "video_id", "is_published"]
+    list_display = ["title", "id", "state", "video_id", "is_published"]
     search_fields = ["title"]
-    readonly_fields = ["id", "is_published"]
-    list_filter = []
+    readonly_fields = ["id", "is_published", "publish_timestamp"]
+    list_filter = ["state", "active"]
 
     class Meta:
         model = VideoAllProxy
