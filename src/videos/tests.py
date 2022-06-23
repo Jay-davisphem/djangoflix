@@ -17,7 +17,6 @@ class VideoModelTestCase(TestCase):
     def test_slug_field(self):
         title = self.a.title
         text_slug = slugify(title)
-        print(text_slug)
         self.assertEqual(text_slug, self.a.slug)
 
     def test_valid_title(self):

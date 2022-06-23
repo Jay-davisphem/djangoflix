@@ -4,6 +4,7 @@ from django.db.models.signals import pre_save
 from djangoflix.db.models import PublishStateOptions
 from djangoflix.db.receivers import publish_state_pre_save, slugify_pre_save
 
+
 class VideoQuerySet(models.QuerySet):
     def published(self):
         return self.filter(
@@ -29,7 +30,9 @@ class Video(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     state = models.CharField(
-        max_length=2, choices=PublishStateOptions.choices, default=PublishStateOptions.DRAFT
+        max_length=2,
+        choices=PublishStateOptions.choices,
+        default=PublishStateOptions.DRAFT,
     )
     objects = VideoManager()
 
@@ -39,6 +42,9 @@ class Video(models.Model):
     @property
     def is_published(self):
         return self.state == PublishStateOptions.PUBLISH
+
+    def get_playlist_ids(self):
+        return list(self.playlist_featured.all().values_list("id", flat=True))
 
 
 class VideoAllProxy(Video):
@@ -53,8 +59,6 @@ class VideoPublishedProxy(Video):
         proxy = True
         verbose_name = "Published Video"
         verbose_name_plural = "Published Videos"
-
-
 
 
 pre_save.connect(publish_state_pre_save, sender=Video)
