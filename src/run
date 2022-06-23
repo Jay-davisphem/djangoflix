@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./manage.py makemigrations videos playlists
+sleep 5s
+./manage.py migrate 
+./manage.py test videos playlists
