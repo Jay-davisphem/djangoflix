@@ -7,6 +7,13 @@ from djangoflix.db.models import PublishStateOptions
 
 
 class PlaylistModelTestCase(TestCase):
+    def create_show_with_seasons(self):
+        th_of = Playlist.objects.create(title="The Office")
+        s1 = Playlist.objects.create(title="The Office S1", parent=th_of, order=1)
+        s2 = Playlist.objects.create(title="The Office S2", parent=th_of, order=2)
+        s = Playlist.objects.create(title="The Office S3", parent=th_of, order=3)
+        self.show = th_of
+
     def create_videos(self):
         vid_a = Video.objects.create(title="My tfjkfle", video_id="123abcs")
         vid_b = Video.objects.create(title="My titlfkfjke", video_id="12abc")
@@ -18,6 +25,7 @@ class PlaylistModelTestCase(TestCase):
 
     def setUp(self):
         self.create_videos()
+        self.create_show_with_seasons()
         self.a = Playlist.objects.create(
             title="Kiniun Ololaju", state=PublishStateOptions.PUBLISH, video=self.vid_a
         )
@@ -68,7 +76,7 @@ class PlaylistModelTestCase(TestCase):
 
     def test_draft_case(self):
         qs = Playlist.objects.filter(state=PublishStateOptions.DRAFT)
-        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.count(), 5)
 
     def test_publish_case(self):
         qs = Playlist.objects.filter(state=PublishStateOptions.PUBLISH)
@@ -81,3 +89,7 @@ class PlaylistModelTestCase(TestCase):
         published_qs_2 = Playlist.objects.published()
         self.assertTrue(published_qs.exists())
         self.assertEqual(published_qs.count(), published_qs_2.count())
+
+    def test_show_has_seasons(self):
+        seasons = self.show.playlist_set.all()
+        self.assertTrue(seasons.count() == 3)
