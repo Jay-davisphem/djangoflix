@@ -1,8 +1,12 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils import timezone
 from django.db.models.signals import pre_save
 from djangoflix.db.models import PublishStateOptions
 from djangoflix.db.receivers import publish_state_pre_save, slugify_pre_save
+
+from categories.models import Category
+from tags.models import TaggedItem
 from videos.models import Video
 
 
@@ -29,6 +33,13 @@ class Playlist(models.Model):
         PLAYLIST = "PLY", "Playlist"
 
     parent = models.ForeignKey("self", blank=True, on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey(
+        Category,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="playlists",
+    )
     order = models.IntegerField(default=1)
     title = models.CharField(max_length=225)
     type = models.CharField(
@@ -57,6 +68,7 @@ class Playlist(models.Model):
         choices=PublishStateOptions.choices,
         default=PublishStateOptions.DRAFT,
     )
+    tags = GenericRelation(TaggedItem, related_query_name="playlist", blank=True)
     objects = PlaylistManager()
 
     def __str__(self):

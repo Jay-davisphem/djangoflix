@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Playlist, PlaylistItem, TVShowProxy, TVShowSeasonProxy, MovieProxy
+from tags.admin import TaggedItemInline
 
 
 class PlaylistItemInline(admin.TabularInline):
@@ -7,13 +8,16 @@ class PlaylistItemInline(admin.TabularInline):
 
 
 class PlaylistAdmin(admin.ModelAdmin):
-    inlines = [PlaylistItemInline]
+    inlines = [TaggedItemInline, PlaylistItemInline]
 
     class Meta:
         model = Playlist
 
     def get_queryset(self, request):
         return Playlist.objects.filter(type=Playlist.PlaylistTypeChoices.PLAYLIST)
+
+
+admin.site.register(Playlist, PlaylistAdmin)
 
 
 class SeasonEpisodeInline(admin.TabularInline):
@@ -23,7 +27,7 @@ class SeasonEpisodeInline(admin.TabularInline):
 
 @admin.register(TVShowSeasonProxy)
 class TVShowSeasonProxyAdmin(admin.ModelAdmin):
-    inlines = [SeasonEpisodeInline]
+    inlines = [TaggedItemInline, SeasonEpisodeInline]
     list_display = ["title", "parent"]
 
     class Meta:
@@ -40,9 +44,10 @@ class TVShowSeasonProxyInline(admin.TabularInline):
 
 
 class TVShowProxyAdmin(admin.ModelAdmin):
-    inlines = [TVShowSeasonProxyInline]
-    fields = ["title", "description", "state", "video", "slug"]
+    inlines = [TaggedItemInline, TVShowSeasonProxyInline]
+    fields = ["title", "category", "description", "state", "video", "slug"]
     list_display = ["title"]
+    readonly_fields = ["tags"]
 
     class Meta:
         model = TVShowProxy
@@ -51,17 +56,17 @@ class TVShowProxyAdmin(admin.ModelAdmin):
         return TVShowProxy.objects.all()
 
 
+admin.site.register(TVShowProxy, TVShowProxyAdmin)
+
+
 @admin.register(MovieProxy)
 class MovieProxyAdmin(admin.ModelAdmin):
     list_display = ["title"]
-    fields = ["title", "description", "state", "video", "slug"]
+    fields = ["title", "category", "description", "state", "video", "slug"]
+    readonly_fields = ["tags"]
 
     class Meta:
         model = MovieProxy
 
     def get_queryset(self, request):
         return MovieProxy.objects.all()
-
-
-admin.site.register(TVShowProxy, TVShowProxyAdmin)
-admin.site.register(Playlist, PlaylistAdmin)
